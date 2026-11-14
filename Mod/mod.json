@@ -1,0 +1,8 @@
+{
+    "id": "io.github.TheOmnipresence.gate-warp",
+    "name": "GateWarp",
+    "main": "GateWarp.dll",
+    "dependencies": [
+        "io.github.mio-modding.mio-modding-api"
+    ]
+}
