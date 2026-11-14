@@ -2,6 +2,7 @@
 using MioModdingApi;
 using MioModLoader;
 using System.Runtime.CompilerServices;
+using static On.MioGame.On_Editor;
 
 namespace GateWarp
 {
@@ -42,6 +43,7 @@ namespace GateWarp
         private static ModMenuPage? modPage;
         private static ChoiceOption? warpLocation;
         private static ToggleOption? unlockNessesity;
+        private static ToggleOption? overseerNessesity;
         public void ConnectMenus()
         {
             modPage = ModMenu.RegisterMod(this, "GateWarp", "");
@@ -51,6 +53,8 @@ namespace GateWarp
                 "The location to warp to");
             unlockNessesity = modPage.RegisterToggle("need_unlock", "Visit Nessesity", false,
                 "Wether you need to have visited the checkpoint in order to warp.");
+            overseerNessesity = modPage.RegisterToggle("need_overseer", "Overseer Nessesity", false,
+                "Wether you need the overseer for the checkpoint in order to warp.");
         }
 
         private unsafe void Hooks()
@@ -67,11 +71,12 @@ namespace GateWarp
             try
             {
                 ref var mio = ref __this->mio;
-                if (unlockNessesity.Value)
+                if (unlockNessesity.Value || overseerNessesity.Value)
                 {
                     ref var save = ref __this->save;
-                    MioGame.String mioString = Util.StringToMioString("CHECKPOINT:" + GetSelected());
-                    if (!(Unsafe.AsRef<Hashmap_String_Save_entry.Slot>(save.entries.lookup(&mioString, false)).value.count > 0))
+                    
+                    if ((unlockNessesity.Value && !HasSaveEntry("CHECKPOINT:" + GetSelected(), ref save)) || 
+                        (overseerNessesity.Value && !HasSaveEntry("OVERSEER:" + GetSelected(), ref save)))
                     {
                         queuedWarp = false;
                         return;
@@ -106,6 +111,13 @@ namespace GateWarp
         {
             if (warpLocation == null) return new Vec_float_3();
             return GetWorldPos(gatePositions[GetSelected()]);
+        }
+
+
+        private unsafe bool HasSaveEntry(string entry, ref MioGame.Save save)
+        {
+            MioGame.String mioString = Util.StringToMioString(entry);
+            return Unsafe.AsRef<Hashmap_String_Save_entry.Slot>(save.entries.lookup(&mioString, false)).value.count > 0;
         }
 
 
