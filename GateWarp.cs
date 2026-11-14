@@ -78,7 +78,11 @@ namespace GateWarp
                     }
                 }
                 if (mio.cutscene.active || mio.checkpoint.state._value != Mio.Checkpoint.State.None) return;
-                mio.move_to(GetWarpPosition());
+                ref var cam = ref __this->game_cam;
+                Vec_float_3 pos = GetWarpPosition();
+                mio.move_to(pos);
+                cam.position = pos;
+                cam.position.z = 35f;
                 queuedWarp = false;
             }
             catch (Exception ex)
