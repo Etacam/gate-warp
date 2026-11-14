@@ -42,8 +42,8 @@ namespace GateWarp
 
         private static ModMenuPage? modPage;
         private static ChoiceOption? warpLocation;
-        private static ToggleOption? unlockNessesity;
-        private static ToggleOption? overseerNessesity;
+        private static ToggleOption? unlockNecessity;
+        private static ToggleOption? overseerNecessity;
         public void ConnectMenus()
         {
             modPage = ModMenu.RegisterMod(this, "GateWarp", "");
@@ -51,9 +51,9 @@ namespace GateWarp
             IReadOnlyList<string> locs = gateNames.Values.ToList<string>();
             warpLocation = modPage.RegisterChoice("warp_loc", "Warp Location", locs, 0, 
                 "The location to warp to");
-            unlockNessesity = modPage.RegisterToggle("need_unlock", "Visit Nessesity", false,
+            unlockNecessity = modPage.RegisterToggle("need_unlock", "Visit Necessity", false,
                 "Wether you need to have visited the checkpoint in order to warp.");
-            overseerNessesity = modPage.RegisterToggle("need_overseer", "Overseer Nessesity", false,
+            overseerNecessity = modPage.RegisterToggle("need_overseer", "Overseer Necessity", false,
                 "Wether you need the overseer for the checkpoint in order to warp.");
         }
 
@@ -71,12 +71,12 @@ namespace GateWarp
             try
             {
                 ref var mio = ref __this->mio;
-                if (unlockNessesity.Value || overseerNessesity.Value)
+                if (unlockNecessity.Value || overseerNecessity.Value)
                 {
                     ref var save = ref __this->save;
                     
-                    if ((unlockNessesity.Value && !HasSaveEntry("CHECKPOINT:" + GetSelected(), ref save)) || 
-                        (overseerNessesity.Value && !HasSaveEntry("OVERSEER:" + GetSelected(), ref save)))
+                    if ((unlockNecessity.Value && !HasSaveEntry("CHECKPOINT:" + GetSelected(), ref save)) || 
+                        (overseerNecessity.Value && !HasSaveEntry("OVERSEER:" + GetSelected(), ref save)))
                     {
                         queuedWarp = false;
                         return;
