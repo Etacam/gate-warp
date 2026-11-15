@@ -43,6 +43,7 @@ namespace GateWarp
         private static ChoiceOption? warpLocation;
         private static ToggleOption? unlockNecessity;
         private static ToggleOption? overseerNecessity;
+        private static ChoiceOption? wheelBehavior;
         public void ConnectMenus()
         {
             modPage = ModMenu.RegisterMod(this, "GateWarp", "");
@@ -54,6 +55,8 @@ namespace GateWarp
                 "Wether you need to have visited the checkpoint in order to warp.");
             overseerNecessity = modPage.RegisterToggle("need_overseer", "Overseer Necessity", false,
                 "Wether you need the overseer for the checkpoint in order to warp.");
+            wheelBehavior = modPage.RegisterChoice("wheel_behavior", "Wheel Behavior", ["Disallow", "Reset", "Allow"], 1,
+                "How teleporting between the halves of the vessel is handled; Reset resets the wheel on teleport.");
         }
 
         private unsafe void Hooks()
@@ -70,20 +73,32 @@ namespace GateWarp
             try
             {
                 ref var mio = ref __this->mio;
-                if (unlockNecessity.Value || overseerNecessity.Value)
+                ref var save = ref __this->save;
+                if ((unlockNecessity.Value && !HasSaveEntry("CHECKPOINT:" + GetSelected(), ref save)) || 
+                    (overseerNecessity.Value && !HasSaveEntry("OVERSEER:" + GetSelected(), ref save)))
                 {
-                    ref var save = ref __this->save;
-                    
-                    if ((unlockNecessity.Value && !HasSaveEntry("CHECKPOINT:" + GetSelected(), ref save)) || 
-                        (overseerNecessity.Value && !HasSaveEntry("OVERSEER:" + GetSelected(), ref save)))
-                    {
-                        queuedWarp = false;
-                        return;
-                    }
+                    queuedWarp = false;
+                    return;
                 }
                 if (mio.cutscene.active || mio.checkpoint.state._value != Mio.Checkpoint.State.None) return;
                 ref var cam = ref __this->game_cam;
                 Vec_float_3 pos = GetWarpPosition();
+
+                if (DifferentHalves(cam.position, pos))
+                {
+                    switch (wheelBehavior.SelectedIndex)
+                    {
+                        case 0: // Disallowed
+                            queuedWarp = false;
+                            return;
+                        case 1: // Reset Wheel
+                            save.halyn_align.configuration_discrete = 2;
+                            break;
+                        case 2: // Allowed
+                            break;
+                    }
+                }
+
                 mio.move_to(pos);
                 cam.position = pos;
                 cam.position.z = 35f;
@@ -140,6 +155,23 @@ namespace GateWarp
                 y = coords.y
             };
             return result;
+        }
+
+        private static bool IsLowerHalf(Vec_float_3 pos)
+        {
+            return IsLowerHalf(pos.y);
+        }
+        private static bool IsLowerHalf(float y)
+        {
+            return y < 1087;
+        }
+        private static bool DifferentHalves(Vec_float_3 pos1, Vec_float_3 pos2)
+        {
+            return DifferentHalves(pos1.y, pos2.y);
+        }
+        private static bool DifferentHalves(float y1, float y2)
+        {
+            return IsLowerHalf(y1) == IsLowerHalf(y2);
         }
     }
 }
