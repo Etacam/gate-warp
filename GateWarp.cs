@@ -2,7 +2,6 @@
 using MioModdingApi;
 using MioModLoader;
 using System.Runtime.CompilerServices;
-using static On.MioGame.On_Editor;
 
 namespace GateWarp
 {
