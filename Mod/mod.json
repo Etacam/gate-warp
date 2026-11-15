@@ -1,5 +1,5 @@
 {
-    "id": "io.github.TheOmnipresence.gate-warp",
+    "id": "io.github.theomnipresence.gate-warp",
     "name": "GateWarp",
     "main": "GateWarp.dll",
     "dependencies": [
