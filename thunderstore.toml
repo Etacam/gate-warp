@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "InterestedSC2"
 name = "GateWarp"
-versionNumber = "0.0.3"
+versionNumber = "1.0.2"
 description = "A mod for warping between network gates"
 websiteUrl = "https://github.com/TheOmnipresence/gate-warp"
 containsNsfwContent = false
